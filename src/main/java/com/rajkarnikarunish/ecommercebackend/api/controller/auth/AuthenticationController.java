@@ -4,12 +4,14 @@ import com.rajkarnikarunish.ecommercebackend.api.models.LoginBody;
 import com.rajkarnikarunish.ecommercebackend.api.models.LoginResponse;
 import com.rajkarnikarunish.ecommercebackend.api.models.RegistrationBody;
 import com.rajkarnikarunish.ecommercebackend.exception.UserAlreadyExistsException;
+import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
 import com.rajkarnikarunish.ecommercebackend.service.UserService;
 import jakarta.servlet.Registration;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,6 +45,11 @@ public class AuthenticationController {
             response.setJwt(jwt);
             return ResponseEntity.ok(response);
         }
+    }
+
+    @GetMapping("/me")
+    public LocalUser getLoggedInUserProfile(@AuthenticationPrincipal LocalUser user) {
+        return user;
     }
 
 }
