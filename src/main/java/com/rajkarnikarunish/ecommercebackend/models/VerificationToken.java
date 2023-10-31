@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 @Table(name = "verification_token")
 public class VerificationToken {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 

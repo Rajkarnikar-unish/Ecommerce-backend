@@ -1,16 +1,20 @@
 package com.rajkarnikarunish.ecommercebackend.service;
 
+import com.auth0.jwt.interfaces.Verification;
 import com.rajkarnikarunish.ecommercebackend.api.models.LoginBody;
 import com.rajkarnikarunish.ecommercebackend.api.models.RegistrationBody;
 import com.rajkarnikarunish.ecommercebackend.exception.EmailFailureException;
 import com.rajkarnikarunish.ecommercebackend.exception.UserAlreadyExistsException;
+import com.rajkarnikarunish.ecommercebackend.exception.UserNotVerifiedException;
 import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
 import com.rajkarnikarunish.ecommercebackend.models.VerificationToken;
 import com.rajkarnikarunish.ecommercebackend.models.dao.LocalUserDao;
 import com.rajkarnikarunish.ecommercebackend.models.dao.VerificationTokenDao;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,7 +48,7 @@ public class UserService {
         user.setPassword(encryptionService.encryptPassword(registrationBody.getPassword()));
         VerificationToken verificationToken = createVerificationToken(user);
         emailService.sendVerificationEmail(verificationToken);
-        verificationTokenDao.save(verificationToken);
+//        verificationTokenDao.save(verificationToken);
         return localUserDao.save(user);
     }
 
@@ -57,15 +61,48 @@ public class UserService {
         return verificationToken;
     }
 
-    public String loginUser(LoginBody loginBody) {
+    public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {
         Optional<LocalUser> opUser = localUserDao.findByUsernameIgnoreCase(loginBody.getUsername());
 
         if (opUser.isPresent()) {
             LocalUser user = opUser.get();
             if (encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword())) {
-                return jwtService.generateJWT(user);
+                if (user.isEmailVerified()) {
+                    return jwtService.generateJWT(user);
+                } else {
+                    List<VerificationToken> verificationTokens = user.getVerificationTokens();
+                    boolean resend = verificationTokens.size() == 0
+                            || verificationTokens
+                            .get(0)
+                            .getCreatedTimestamp()
+                            .before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000 )));
+
+                    if (resend) {
+                        VerificationToken verificationToken = createVerificationToken(user);
+                        verificationTokenDao.save(verificationToken);
+                        emailService.sendVerificationEmail(verificationToken);
+                    }
+                    throw new UserNotVerifiedException(resend);
+                }
             }
         }
         return null;
+    }
+
+    @Transactional
+    public boolean verifyUser(String token) {
+        Optional<VerificationToken> opToken = verificationTokenDao.findByToken(token);
+        if (opToken.isPresent()) {
+            VerificationToken verificationToken = opToken.get();
+            LocalUser user = verificationToken.getUser();
+
+            if (!user.isEmailVerified()) {
+                user.setEmailVerified(true);
+                localUserDao.save(user);
+                verificationTokenDao.deleteByUser(user);
+                return true;
+            }
+        }
+        return false;
     }
 }
