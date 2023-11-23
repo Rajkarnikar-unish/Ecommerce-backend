@@ -20,7 +20,8 @@ public class WebSecurityConfig {
         http.csrf().disable().cors().disable(); //cors allows requests from the authorized domains
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests()
-                .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/verify", "/error").permitAll()
+                .requestMatchers("/product", "/auth/register", "/auth/login",
+                        "/auth/forgot","/auth/reset", "/auth/verify", "/error").permitAll()
                 .anyRequest().authenticated();
         return http.build();
     }

@@ -2,8 +2,10 @@ package com.rajkarnikarunish.ecommercebackend.service;
 
 import com.auth0.jwt.interfaces.Verification;
 import com.rajkarnikarunish.ecommercebackend.api.models.LoginBody;
+import com.rajkarnikarunish.ecommercebackend.api.models.PasswordResetBody;
 import com.rajkarnikarunish.ecommercebackend.api.models.RegistrationBody;
 import com.rajkarnikarunish.ecommercebackend.exception.EmailFailureException;
+import com.rajkarnikarunish.ecommercebackend.exception.EmailNotFoundException;
 import com.rajkarnikarunish.ecommercebackend.exception.UserAlreadyExistsException;
 import com.rajkarnikarunish.ecommercebackend.exception.UserNotVerifiedException;
 import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
@@ -13,13 +15,13 @@ import com.rajkarnikarunish.ecommercebackend.models.dao.VerificationTokenDao;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
-
     private LocalUserDao localUserDao;
     private EncryptionService encryptionService;
     private VerificationTokenDao verificationTokenDao;
@@ -104,5 +106,26 @@ public class UserService {
             }
         }
         return false;
+    }
+
+    public void forgotPassword(String email) throws EmailNotFoundException, EmailFailureException {
+        Optional<LocalUser> opUser = localUserDao.findByEmailIgnoreCase(email);
+        if(opUser.isPresent()) {
+            LocalUser user = opUser.get();
+            String token= jwtService.generatePasswordResetJWT(user);
+            emailService.sendPasswordResetEmail(user, token);
+       } else {
+            throw new EmailNotFoundException();
+        }
+    }
+
+    public void resetPassword(PasswordResetBody body) {
+        String email = jwtService.getResetPasswordEmail(body.getToken());
+        Optional<LocalUser> opUser = localUserDao.findByEmailIgnoreCase(email);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+            user.setPassword(encryptionService.encryptPassword(body.getPassword()));
+            localUserDao.save(user);
+        }
     }
 }
