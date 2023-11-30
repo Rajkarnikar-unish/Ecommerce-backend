@@ -21,6 +21,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     private ApplicationContext context;
+    private JWTRequestFilter jwtRequestFilter;
 
     public WebSocketConfiguration(ApplicationContext context) {
         this.context = context;
@@ -50,11 +51,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        AuthorizationManager<Message<?>> authorizationManager = makeMessageAuthorizationManager();
+            AuthorizationManager<Message<?>> authorizationManager = makeMessageAuthorizationManager();
 
         AuthorizationChannelInterceptor authInterceptor = new AuthorizationChannelInterceptor(authorizationManager);
         AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(context);
         authInterceptor.setAuthorizationEventPublisher(publisher);
-        registration.interceptors(authInterceptor);
+        registration.interceptors(jwtRequestFilter, authInterceptor);
     }
 }
