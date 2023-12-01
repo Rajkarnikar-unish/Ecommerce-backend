@@ -13,6 +13,7 @@ import com.rajkarnikarunish.ecommercebackend.models.VerificationToken;
 import com.rajkarnikarunish.ecommercebackend.models.dao.LocalUserDao;
 import com.rajkarnikarunish.ecommercebackend.models.dao.VerificationTokenDao;
 import jakarta.transaction.Transactional;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -127,5 +128,9 @@ public class UserService {
             user.setPassword(encryptionService.encryptPassword(body.getPassword()));
             localUserDao.save(user);
         }
+    }
+
+    public boolean userHasPermissionToUser(LocalUser user,Long id) {
+        return user.getId() == id;
     }
 }
