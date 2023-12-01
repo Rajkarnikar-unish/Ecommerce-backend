@@ -83,7 +83,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
         private String[] paths = new String[] {
                 "/topic/user/*/address"
-        }
+        };
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             if (message.getHeaders().get("simpMessageType").equals(SimpMessageType.MESSAGE)) {
@@ -102,22 +102,25 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             if (message.getHeaders().get("simpMessageType").equals(SimpMessageType.SUBSCRIBE)) {
                 String destination = (String) message.getHeaders().get("simpDestination");
-                Map<String, String> params = MATCHER
-                        .extractUriTemplateVariables("/topic/user/{userId}/**", destination);
+                String userTopicMatcher = "/topic/user/{userId}/**";
+                if (MATCHER.match(userTopicMatcher, destination)) {
+                    Map<String, String> params = MATCHER
+                            .extractUriTemplateVariables(userTopicMatcher, destination);
 
-                try {
-                    Long userId = Long.valueOf(params.get("userId"));
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    if (authentication != null) {
-                        LocalUser user = (LocalUser) authentication.getPrincipal();
-                        if (!userService.userHasPermissionToUser(user, userId)) {
+                    try {
+                        Long userId = Long.valueOf(params.get("userId"));
+                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                        if (authentication != null) {
+                            LocalUser user = (LocalUser) authentication.getPrincipal();
+                            if (!userService.userHasPermissionToUser(user, userId)) {
+                                message = null;
+                            }
+                        } else {
                             message = null;
                         }
-                    } else {
+                    } catch (NumberFormatException e) {
                         message = null;
                     }
-                } catch (NumberFormatException e) {
-                    message = null;
                 }
             }
             return message;

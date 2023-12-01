@@ -25,7 +25,8 @@ public class WebSecurityConfig extends SecurityConfigurerAdapter {
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests()
                 .requestMatchers("/product", "/auth/register", "/auth/login",
-                        "/auth/forgot","/auth/reset", "/auth/verify", "/error", "/", "/register").permitAll()
+                        "/auth/forgot","/auth/reset", "/auth/verify", "/error", "/", "/register",
+                        "/websocket", "/websocket/**").permitAll()
                 .anyRequest().authenticated();
         return http.build();
     }
