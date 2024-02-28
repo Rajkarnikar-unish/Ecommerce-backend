@@ -1,6 +1,4 @@
-FROM openjdk:17
+FROM bellsoft/liberica-openjdk-alpine
 VOLUME /tmp
-EXPOSE 8080
-ARG JAR_FILE=build/libs/ecommerce-backend-0.0.1-SNAPSHOT.jar
-ADD ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+COPY build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]

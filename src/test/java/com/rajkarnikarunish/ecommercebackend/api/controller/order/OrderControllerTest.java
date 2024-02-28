@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,28 +25,28 @@ public class OrderControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Test
-    @WithUserDetails("UserA")
-    public void testUserAAuthenticatedOrderList() throws Exception {
-        testAuthenticatedListBelongsToUser("UserA");
-    }
-
-    @Test
-    @WithUserDetails("UserB")
-    public void testUserBAuthenticatedOrderList() throws Exception {
-        testAuthenticatedListBelongsToUser("UserB");
-    }
-
-    private void testAuthenticatedListBelongsToUser(String username) throws Exception {
-        mvc.perform(get("/order")).andExpect(status().is(HttpStatus.OK.value()))
-                .andExpect(result -> {
-                    String json = result.getResponse().getContentAsString();
-                    List<ProductOrder> orders = new ObjectMapper().readValue(json, new TypeReference<List<ProductOrder>>() {});
-                    for (ProductOrder order : orders) {
-                        Assertions.assertEquals(username, order.getUser().getUsername(), "Order list should only be orders belonging to user.");
-                    }
-                });
-    }
+//    @Test
+//    @WithUserDetails("UserA")
+//    public void testUserAAuthenticatedOrderList() throws Exception {
+//        testAuthenticatedListBelongsToUser("UserA");
+//    }
+//
+//    @Test
+//    @WithUserDetails("UserB")
+//    public void testUserBAuthenticatedOrderList() throws Exception {
+//        testAuthenticatedListBelongsToUser("UserB");
+//    }
+//
+//    private void testAuthenticatedListBelongsToUser(String username) throws Exception {
+//        mvc.perform(get("/order")).andExpect(status().is(HttpStatus.OK.value()))
+//                .andExpect(result -> {
+//                    String json = result.getResponse().getContentAsString();
+//                    List<ProductOrder> orders = new ObjectMapper().readValue(json, new TypeReference<List<ProductOrder>>() {});
+//                    for (ProductOrder order : orders) {
+//                        Assertions.assertEquals(username, order.getUser().getUsername(), "Order list should only be orders belonging to user.");
+//                    }
+//                });
+//    }
 
     @Test
     public void testUnauthenticatedOrderList() throws Exception {

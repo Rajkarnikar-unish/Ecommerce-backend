@@ -23,11 +23,10 @@ public class WebSecurityConfig extends SecurityConfigurerAdapter {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().disable(); //cors allows requests from the authorized domains
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
-        http.authorizeHttpRequests()
-                .requestMatchers("/product", "/auth/register", "/auth/login",
+        http.authorizeHttpRequests(request -> request.requestMatchers("/product", "/auth/register", "/auth/login",
                         "/auth/forgot","/auth/reset", "/auth/verify", "/error", "/", "/register",
                         "/websocket", "/websocket/**").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated());
         return http.build();
     }
 }

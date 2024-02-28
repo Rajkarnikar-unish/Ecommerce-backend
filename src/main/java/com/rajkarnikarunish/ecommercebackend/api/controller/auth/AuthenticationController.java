@@ -12,6 +12,7 @@ import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
 import com.rajkarnikarunish.ecommercebackend.service.UserService;
 import jakarta.servlet.Registration;
 import jakarta.validation.Valid;
+import org.apache.commons.logging.Log;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,6 @@ public class AuthenticationController {
             return ResponseEntity.ok().build();
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
-
         } catch (EmailFailureException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
