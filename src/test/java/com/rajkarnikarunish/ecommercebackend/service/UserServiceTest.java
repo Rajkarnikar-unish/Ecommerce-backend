@@ -1,40 +1,85 @@
 package com.rajkarnikarunish.ecommercebackend.service;
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration;
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.ServerSetupTest;
-import com.rajkarnikarunish.ecommercebackend.api.models.LoginBody;
-import com.rajkarnikarunish.ecommercebackend.api.models.PasswordResetBody;
 import com.rajkarnikarunish.ecommercebackend.api.models.RegistrationBody;
-import com.rajkarnikarunish.ecommercebackend.exception.EmailFailureException;
-import com.rajkarnikarunish.ecommercebackend.exception.EmailNotFoundException;
-import com.rajkarnikarunish.ecommercebackend.exception.UserAlreadyExistsException;
-import com.rajkarnikarunish.ecommercebackend.exception.UserNotVerifiedException;
 import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
 import com.rajkarnikarunish.ecommercebackend.models.VerificationToken;
 import com.rajkarnikarunish.ecommercebackend.models.dao.LocalUserDao;
-import com.rajkarnikarunish.ecommercebackend.models.dao.VerificationTokenDao;
-import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 public class UserServiceTest {
+    @InjectMocks
+    private UserService userService;
 
-//    @RegisterExtension
-//    private static GreenMailExtension greenMailExtension = new GreenMailExtension(ServerSetupTest.SMTP)
-//            .withConfiguration(GreenMailConfiguration.aConfig().withUser("springboot", "secret"))
-//            .withPerMethodLifecycle(true);
+    @Mock
+    EncryptionService encryptionService;
+    @Mock
+    EmailService emailService;
+    @Mock
+    LocalUserDao localUserDao;
+    @Mock
+    JWTService jwtService;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testRegisterUser() throws MessagingException {
+        try {
+            RegistrationBody body = new RegistrationBody();
+            body.setUsername("UserAxfghfxcjh");
+            body.setEmail("UserServiceTest$testRegisterUser@junit.com");
+            body.setFirstName("FirstName");
+            body.setLastName("LastName");
+            body.setPassword("MySecretPassword123");
+
+            String encryptedPassword = "a0b1c2d3";
+            String jwtAuthToken = "jwtToken01";
+
+            VerificationToken verificationToken = new VerificationToken();
+            verificationToken.setId(12345L);
+            verificationToken.setToken("AccessToken");
+
+            LocalUser localUser = new LocalUser();
+            localUser.setEmail(body.getEmail());
+            localUser.setUsername(body.getUsername());
+            localUser.setFirstName(body.getFirstName());
+            localUser.setLastName(body.getLastName());
+            localUser.setId(123L);
+            localUser.setPassword(body.getPassword());
+
+            when(encryptionService.encryptPassword(anyString())).thenReturn(encryptedPassword);
+            doNothing().when(emailService).sendVerificationEmail(any(VerificationToken.class));
+            when(localUserDao.findByEmailIgnoreCase(anyString())).thenReturn(Optional.empty());
+            when(localUserDao.findByUsernameIgnoreCase(anyString())).thenReturn(Optional.empty());
+            when(localUserDao.save(any(LocalUser.class))).thenReturn(localUser);
+            when(jwtService.generateVerificationJWT(any(LocalUser.class))).thenReturn(jwtAuthToken);
+
+            LocalUser testResult = userService.registerUser(body);
+
+            Assert.assertEquals(testResult, localUser);
+        } catch (Exception ex) {
+            System.out.println("Error during test registration user: Error: " + ex);
+        }
+    }
+
 //
 //    @Autowired
 //    private UserService userService;
@@ -49,6 +94,11 @@ public class UserServiceTest {
 //
 //    @Autowired
 //    private EncryptionService encryptionService;
+//
+//    @RegisterExtension
+//    private static GreenMailExtension greenMailExtension = new GreenMailExtension(ServerSetupTest.SMTP)
+//            .withConfiguration(GreenMailConfiguration.aConfig().withUser("springboot", "secret"))
+//            .withPerMethodLifecycle(true);
 //
 //    @Test
 //    @Transactional //When springboot runs the test and starts the session and knows this is a sql transaction
