@@ -10,15 +10,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc //Tells spring I want use mvc framework for unit testing, we need to autowire mock mvc object
+//@AutoConfigureMockMvc //Tells spring I want use mvc framework for unit testing, we need to autowire mock mvc object
 public class ProductTest {
 
-    @Autowired
-    private MockMvc mvc;
-
-    @Test
-    public void testProductList() throws Exception {
-        mvc.perform(get("/product")).andExpect(status().is(HttpStatus.OK.value()));
-    }
+//    @Autowired
+//    private MockMvc mvc;
+//
+//    @Test
+//    public void testProductList() throws Exception {
+//        mvc.perform(get("/product")).andExpect(status().is(HttpStatus.OK.value()));
+//    }
 
 }

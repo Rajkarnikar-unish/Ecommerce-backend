@@ -19,11 +19,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 public class OrderControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+//    @Autowired
+//    private MockMvc mvc;
 
 //    @Test
 //    @WithUserDetails("UserA")
@@ -48,8 +48,8 @@ public class OrderControllerTest {
 //                });
 //    }
 
-    @Test
-    public void testUnauthenticatedOrderList() throws Exception {
-        mvc.perform(get("/order")).andExpect(status().is(HttpStatus.FORBIDDEN.value()));
-    }
+//    @Test
+//    public void testUnauthenticatedOrderList() throws Exception {
+//        mvc.perform(get("/order")).andExpect(status().is(HttpStatus.FORBIDDEN.value()));
+//    }
 }

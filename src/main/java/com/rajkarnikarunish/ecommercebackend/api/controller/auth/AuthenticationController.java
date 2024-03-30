@@ -10,10 +10,7 @@ import com.rajkarnikarunish.ecommercebackend.exception.UserAlreadyExistsExceptio
 import com.rajkarnikarunish.ecommercebackend.exception.UserNotVerifiedException;
 import com.rajkarnikarunish.ecommercebackend.models.LocalUser;
 import com.rajkarnikarunish.ecommercebackend.service.UserService;
-import jakarta.servlet.Registration;
 import jakarta.validation.Valid;
-import org.apache.commons.logging.Log;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
