@@ -24,7 +24,7 @@ public class WebSecurityConfig extends SecurityConfigurerAdapter {
         http.csrf().disable().cors().disable(); //cors allows requests from the authorized domains
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests(request -> request.requestMatchers("/product", "/auth/register", "/auth/login",
-                        "/auth/forgot","/auth/reset", "/auth/verify", "/error", "/", "/register",
+                        "/auth/forgot","/auth/reset", "/auth/verify", "/context-path/**", "/error", "/", "/register",
                         "/websocket", "/websocket/**").permitAll()
                 .anyRequest().authenticated());
         return http.build();

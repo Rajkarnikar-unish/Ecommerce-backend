@@ -72,7 +72,12 @@ public class UserServiceTest {
             when(localUserDao.save(any(LocalUser.class))).thenReturn(localUser);
             when(jwtService.generateVerificationJWT(any(LocalUser.class))).thenReturn(jwtAuthToken);
 
+            System.out.println("LOCALUSER");
+            System.out.println(localUser.toString());
+
             LocalUser testResult = userService.registerUser(body);
+            System.out.println("TESTRESULT");
+            System.out.println(testResult.toString());a
 
             Assert.assertEquals(testResult, localUser);
         } catch (Exception ex) {
